@@ -5,4 +5,6 @@ modules/*
 !modules/readme
 
 core/*/prepare/*
+core/*/transcode/*
 !core/*/prepare/readme
+!core/*/transcode/readme
