@@ -195,14 +195,17 @@ function core_transcode() {
   //Convert non-wave formats to wave audio for easier analysis.
 
   //return files, etc
+  return(array());
 }
 
-function core_save($transcodes, $analyses) {
-  //Put all outputs onto BioAcoustica storage.
-
-  //If current dir has not had $init saved to it, save data and add dir to $init_data_saved_to_dir = array();
+function core_save($files) {
+  foreach ($files as $id => $data) {
+    exec("s3cmd put --force ".$data["local path"].$data["file name"]." s3://bioacoustica-analysis/".$data["save path"], $output, $return_value);
+  }
 }
 
-function core_clean($transcodes, $analyses) {
-  //Delete things
+function core_clean($files) {
+  foreach ($files as $id => $data) {
+    exec("rm ".$data["local path"].$data["file name"], $output, $return_value);
+  }
 }

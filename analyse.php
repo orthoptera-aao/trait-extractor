@@ -90,30 +90,29 @@ foreach ($GLOBALS["core"]["recordings"] as $recording) {
 
   It may also be used for other transformations before analysis.
   */
-  $transcodes = array(
-    core_transcode(),
-    core_hook("transcode", $recording)
-  );
+  $transcodes = core_hook("transcode", $recording);
+  core_save($transcodes);
 
   /*
   The analysis phase does the bulk of the work.
   */
-  $analyses = core_hook("analyse", array("recording_id" => $recording_id));
+  $analyses = array();
+  //$analyses = core_hook("analyse", array("recording_id" => $recording_id));
 
   /*
   The verify phase checks the analysis results against rules that should be true for all
   recordings, these functions may reuse some tests internally.
-  */
+  
   $verification_notes[] = core_hook("verify",
   									array("recording_id" => $recording_id,
   									      "analyses" => $analyses)
   								   );
 
-  /*
+
   The compare phase can be used to compare the results of analyses with other data, e.g.
   literature traits, and raise a message when they seem incompatible.
-  */
-  $comparison_notes[] = core_hook("compare",
+
+  //$comparison_notes[] = core_hook("compare",
                                   array("recording_id" => $recording_id,
                                         "analyses" => $analyses)
                                  );
@@ -122,15 +121,14 @@ foreach ($GLOBALS["core"]["recordings"] as $recording) {
   The save phase records the outputs of transcode and analyse to the core data repository
   and to other locations specified by other modules.
   */
-  core_save($transcodes, $analyses);
-  core_hook("save", array("recording_id" => $recording_id,
-                          "transcodes" => $transcodes,
-                          "analyses" => $analyses)
-           );
+
 
   /*
   The clean phase removes all files downloaded or created during the analysis process to
   keep the server clean.
   */
-  core_clean($transcodes, $analyses);
+  core_clean($transcodes);
+  core_clean($analyses);
 }
+
+  core_hook("clean", $recording["id"]);
