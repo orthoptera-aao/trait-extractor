@@ -18,7 +18,7 @@ function oscillo_init() {
       "missing text" => "Oscillo requires R.",
       "version flag" => "--version"
     ),
-    "tuneR" => array( //change to seewave
+    "seewave" => array( 
       "type" => "Rpackage",
       "required" => "required",
       "missing text" => "Oscillo requires the R seewave package.",

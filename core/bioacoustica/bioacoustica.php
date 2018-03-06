@@ -19,6 +19,11 @@ function bioacoustica_init() {
       "required" => "required",
       "missing text" => "BioAcoustica requires wget to access some files.",
       "version flag" => "--version"
+    ),
+    "magic" => array(
+      "type" => "pythonmodule",
+      "required" => "optional",
+      "missing text" => "s3cmd is quieter when the python-magic module is installed."
     )
   );
   return($init);

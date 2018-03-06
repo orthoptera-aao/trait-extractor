@@ -105,6 +105,9 @@ function core_init_check($inits) {
       case "Rpackage" :
         $return[] = _core_init_check_Rpackage($cmd_name, $data);
         break;
+      case "pythonmodule":
+        $return[] = _core_init_check_pythonmodule($cmd_name, $data);
+        break;
       default:
         echo "Undefined depency type: $cmd_name.\n";
         exit;
@@ -112,6 +115,22 @@ function core_init_check($inits) {
   }
   return($return);
 }
+
+function _core_init_check_pythonmodule($module, $data) {
+  $return = array();
+  exec("python -c \"import $module \" &> /dev/null", $output, $return_value);
+  if ($return_value == 0) {
+  
+  } else {
+    echo $data["missing text"]."\n";
+    $GLOBALS["core"]["cmd"][$module] = FALSE;
+    if ($data["required"] == "required") {
+      echo "Exiting.\n";
+      exit;
+    }
+  }
+}
+
 
 function _core_init_check_Rpackage($package, $data) {
   $return = array();
