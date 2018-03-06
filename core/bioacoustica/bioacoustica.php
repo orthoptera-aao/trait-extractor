@@ -19,5 +19,6 @@ function bioacoustica_init() {
 }
 
 function bioacoustica_prepare() {
-
+  exec("s3cmd get s3://bioacoustica-analysis/R/recordings.txt core/bioacoustica/prepare/recordings.txt", $output, $return_value);
+  
 }

@@ -3,3 +3,6 @@
 #Modules
 modules/*
 !modules/readme
+
+core/*/prepare/*
+!core/*/prepare/readme
