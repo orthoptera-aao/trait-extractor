@@ -17,8 +17,7 @@ function core_load_modules() {
   foreach($modules_info as $repo => $modules) {
     if ($repo != "core") {
       core_pull_github($repo);
-      $git_name = end(explode("/", $repo));
-      $dir = "modules/".substr($git_name, 0, strlen($git_name) - 4);
+      $dir = "modules/"._core_get_github_folder($repo);
     }  else {
       $dir = "core";
     }
@@ -53,6 +52,13 @@ function core_load_modules() {
   }
 }
 
+function _core_get_github_folder($repo) {
+  $git_name = explode("/", $repo);
+  $git_name = end($git_name);
+  $dir = substr($git_name, 0, strlen($git_name) - 4);
+  return($dir);
+}
+
 function core_pull_github($repos) {
   if ($GLOBALS["core"]["cmd"]["git"] != TRUE) {
     echo "You have requested loading external modules from GitHub, but Git is not installed.\nExiting.\n";
@@ -64,7 +70,7 @@ function core_pull_github($repos) {
   foreach ($repos as $repo) {
     unset($output);
     unset($return_value);
-
+    $dir = _core_get_github_folder($repo);
     if (!is_dir("modules/$dir")) {
       exec("cd modules; git clone $repo; cd ..", $output, $return_value);
     }
@@ -92,19 +98,60 @@ function core_download($file_with_path) {
 function core_init_check($inits) {
   $return = array();
   foreach ($inits as $cmd_name => $data) {
-    unset($path);
-    unset($version);
-    exec("which ".$data["cmd"], $path, $return_value);
+    switch ($data["type"]) {
+      case "cmd":
+        $return[] = _core_init_check_cmd($cmd_name, $data);
+        break;
+      case "Rpackage" :
+        $return[] = _core_init_check_Rpackage($cmd_name, $data);
+        break;
+      default:
+        echo "Undefined depency type: $cmd_name.\n";
+        exit;
+    }
+  }
+  return($return);
+}
+
+function _core_init_check_Rpackage($package, $data) {
+  $return = array();
+  exec("Rscript core/scripts/package_install_check.R ".$package, $output, $return_value);
+  if ($return_value == 0) {
+      $output = array();
+      exec("R --quiet -e 'packageVersion(\"$package\")'", $version, $return_value);
+      
+      if ($return_value == 0) {
+        $version = substr($version[1], 7, strlen($version[1]) - 10);
+        $return = array(
+          "cmd_name" => $package,
+          "version" => $version
+        );
+        $GLOBALS["core"]["cmd"][$package] = TRUE;
+      }
+    } else {
+      echo $data["missing text"]."\n";
+      $GLOBALS["core"]["cmd"][$package] = FALSE;
+      if ($data["required"] == "required") {
+        echo "Exiting.\n";
+        exit;
+      }
+    }
+  return($return);
+} 
+
+function _core_init_check_cmd($cmd_name, $data) {
+  $return = array();
+    exec("which ".$cmd_name, $path, $return_value);
     if ($return_value == 0) {
       $output = array();
-      exec($data['cmd']." ".$data['version flag'], $version, $return_value);
+      exec($cmd_name." ".$data['version flag'], $version, $return_value);
       if ($return_value == 0) {
         if (isset($data["version line"])) {
           $version = $version[$data["version line"]];
         } else {
           $version = $version[0];
         }
-        $return[] = array(
+        $return = array(
           "cmd_name" => $cmd_name,
           "path" => $path[0],
           "version" => $version
@@ -119,20 +166,19 @@ function core_init_check($inits) {
         exit;
       }
     }
-  }
-  return($return);
+    return($return);
 }
 
 function core_init() {
   $init = array(
     "php" => array(
-      "cmd" => "php",
+      "type" => "cmd",
       "required" => "required",
       "missing text" => "You should not get to this point in execution.",
       "version flag" => "-v"
     ),
     "git" => array(
-      "cmd" => "git",
+      "type" => "cmd",
       "required" => "optional",
       "missing text" => "Git is not installed. You will not be able to use non-core modules.\n",
       "version flag" => "--version"

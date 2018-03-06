@@ -13,13 +13,13 @@ function oscillo_info() {
 function oscillo_init() {
   $init = array(
     "R" => array(
-      "cmd" => "R",
+      "type" => "cmd",
       "required" => "required",
       "missing text" => "Oscillo requires R.",
       "version flag" => "--version"
     ),
-    "R-seewave" => array(
-      "cmd" => "R",
+    "tuneR" => array( //change to seewave
+      "type" => "Rpackage",
       "required" => "required",
       "missing text" => "Oscillo requires the R seewave package.",
       "version flag" => "--quiet -e 'packageVersion(\"seewave\")'",
