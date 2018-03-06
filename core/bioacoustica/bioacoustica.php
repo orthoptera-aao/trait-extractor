@@ -40,4 +40,5 @@ function bioacoustica_prepare() {
     echo "Could not download BioAcoustica recording metdata.\nExiting\n.";
     exit;
   }
+  return(array());
 }
