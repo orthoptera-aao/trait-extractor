@@ -1,6 +1,8 @@
 <?php
 $modules_info = array(
-  "core" => array("oscillo"
-                 ),
+  "core" => array(
+    "oscillo",
+    "bioacoustica"
+  ),
   "git@github.com:edwbaker/trait-extractor-tests.git" => array("standalone")
 );
