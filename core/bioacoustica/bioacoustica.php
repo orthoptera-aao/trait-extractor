@@ -19,6 +19,26 @@ function bioacoustica_init() {
 }
 
 function bioacoustica_prepare() {
-  exec("s3cmd get s3://bioacoustica-analysis/R/recordings.txt core/bioacoustica/prepare/recordings.txt", $output, $return_value);
-  
+  exec("s3cmd get --force s3://bioacoustica-analysis/R/recordings.txt core/bioacoustica/prepare/recordings.txt", $output, $return_value);
+  if ($return_value == 0) {
+    $keys = array(
+      "id",
+      "taxon",
+      "file",
+      "author",
+      "uploaded",
+      "size",
+      "byte size",
+      "MIME",
+      "source"
+    );
+    $fh_recordings = fopen("core/bioacoustica/prepare/recordings.txt", 'r');
+    while (($data = fgetcsv($fh_recordings)) !== FALSE) {
+      $GLOBALS["core"]["recordings"][] = array_combine($keys, array_merge($data, array("bioacoustica")));
+    }
+  } else {
+    echo "Could not download BioAcoustica recording metdata.\nExiting\n.";
+    exit;
+  }
+  print_r($GLOBALS["core"]["recordings"]);exit;
 }
