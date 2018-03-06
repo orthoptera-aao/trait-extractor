@@ -55,7 +55,7 @@ if ($mode == "test") {
 $verification_notes = array();
 $comparison_notes = array();
 
-foreach ($GLOBALS["core"]["recordings"]["id"] as $recording_id) {
+foreach ($GLOBALS["core"]["recordings"] as $recording) {
   /*
   Each recording is processed sequentially to avoid filling the drive with audio files.
 
@@ -90,10 +90,9 @@ foreach ($GLOBALS["core"]["recordings"]["id"] as $recording_id) {
 
   It may also be used for other transformations before analysis.
   */
-
   $transcodes = array(
-    core_transcode,
-    core_hook("transcode", array("recording_id" => $recording_id))
+    core_transcode(),
+    core_hook("transcode", $recording)
   );
 
   /*

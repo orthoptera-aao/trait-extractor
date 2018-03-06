@@ -13,6 +13,12 @@ function bioacoustica_init() {
       "required" => "required",
       "missing text" => "BioAcoustica requires s3cmd to access data.",
       "version flag" => "--version"
+    ),
+    "wget" => array(
+      "type" => "cmd",
+      "required" => "required",
+      "missing text" => "BioAcoustica requires wget to access some files.",
+      "version flag" => "--version"
     )
   );
   return($init);
@@ -33,6 +39,7 @@ function bioacoustica_prepare() {
       "source"
     );
     $fh_recordings = fopen("core/bioacoustica/prepare/recordings.txt", 'r');
+    fgetcsv($fh_recordings); //Discard headers row.
     while (($data = fgetcsv($fh_recordings)) !== FALSE) {
       $GLOBALS["core"]["recordings"][] = array_combine($keys, array_merge($data, array("bioacoustica")));
     }
@@ -41,4 +48,8 @@ function bioacoustica_prepare() {
     exit;
   }
   return(array());
+}
+
+function bioacoustica_transcode($data) {
+
 }
