@@ -18,16 +18,16 @@ $init = core_init();
 
 /*
 Load config/modules.info which is a list of GitHuib repositories to load modules from.
-
+Checks that all module dependecies are satisified.
 Get the master branch from each before continuing.
 */
 core_load_modules();
 
 /*
-The init phase checks that all module dependecies are satisified. The functions return
-information of relevence to the analysis run, e.g. verions of software used.
+The functions return information of relevence to the analysis run, e.g. verions of
+software used.
 */
-$init = array($init, core_hook("init"));
+$init = array_merge($init, core_hook("init"));
 
 /*
 The prepare phase downloads metadata files that are required for the functioning of
