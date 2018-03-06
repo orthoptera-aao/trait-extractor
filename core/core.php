@@ -188,9 +188,7 @@ function core_init() {
 }
 
 function core_prepare() {
-  //Download metadata files
-
-  //Loads the recordings metadata into memory as $GLOBALS["core"]["recordings"]
+  $GLOBALS["core"]["recordings"] = array();
 }
 
 function core_transcode() {

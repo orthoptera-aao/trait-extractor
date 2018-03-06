@@ -26,5 +26,5 @@ function oscillo_init() {
       "version line" => 1
     )
   );
-  return core_init_check($init);
+  return ($init);
 }

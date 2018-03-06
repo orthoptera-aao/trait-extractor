@@ -27,13 +27,17 @@ core_load_modules();
 The functions return information of relevence to the analysis run, e.g. verions of
 software used.
 */
-$init = array_merge($init, core_hook("init"));
+$module_inits = core_hook("init");
+$init = array_merge($init, core_init_check($module_inits));
 
 /*
 The prepare phase downloads metadata files that are required for the functioning of
 each module.
 
 Modules may load this data into $GLOBALS[module_name][data]
+
+Modules may also add to the following globals:
+$GLOBALS["core"]["recordings"] - an array of all recordings
 */
 core_prepare();
 core_hook("prepare");
