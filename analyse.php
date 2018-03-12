@@ -100,6 +100,7 @@ foreach ($GLOBALS["core"]["recordings"] as $recording) {
   The analysis phase does the bulk of the work.
   */
   $analyses = core_hook("analyse", $recording);
+  core_save($analyses);
 
   /*
   The verify phase checks the analysis results against rules that should be true for all

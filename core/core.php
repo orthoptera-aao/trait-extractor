@@ -120,19 +120,20 @@ function core_pull_github($repos) {
 
 function core_hook($hook, $data = NULL) {
   $returns = array();
-  foreach ($GLOBALS["modules"] as $module) {
-    if (!function_exists($module."_".$hook)) {
-      continue;
+  foreach ($GLOBALS["modules"] as $module => $module_data) {
+    if (function_exists($module."_".$hook)) {
+      $returns = array_merge($returns, call_user_func($module."_".$hook, $data));
     }
-    $returns = array_merge($returns, call_user_func($module."_".$hook, $data));
   }
   return($returns);
 }
 
 function core_download($file_with_path) {
-  //Check if file has been downloaded, if not download it
-
-  return($path_to_file);
+  if (!file_exists("scratch/".$file_with_path)) {
+    core_log("info", "core", "No scratch match for $file_with_path - attempting download.");
+    exec("s3cmd get s3://bioacoustica-analysis/$file_with_path scratch/$file_with_path", $output, $return_value);
+  }
+  return($file_with_path);
 }
 
 function core_init_check($inits) {
@@ -259,15 +260,19 @@ function core_transcode() {
 
 function core_save($files) {
   foreach ($files as $id => $data) {
-    exec("s3cmd put --force ".$data["local path"].$data["file name"]." s3://bioacoustica-analysis/".$data["save path"], $output, $return_value);
-    if ($return_value == 0) {
-      core_log("info", "bioacoustica", "Uploaded s3://bioacoustica-analysis/".$data["save path"].$data["file name"]." to analysis server.");
+    if ($data["save path"] != NULL) {
+      exec("s3cmd put --force ".$data["local path"].$data["file name"]." s3://bioacoustica-analysis/".$data["save path"], $output, $return_value);
+      if ($return_value == 0) {
+        core_log("info", "bioacoustica", "Uploaded s3://bioacoustica-analysis/".$data["save path"].$data["file name"]." to analysis server.");
+      }
     }
   }
 }
 
 function core_clean($files) {
   foreach ($files as $id => $data) {
-    exec("rm ".$data["local path"].$data["file name"], $output, $return_value);
+    if (file_exists($data["local path"])) {
+      exec("rm ".$data["local path"].$data["file name"], $output, $return_value);
+    }
   }
 }
