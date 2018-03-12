@@ -28,3 +28,8 @@ function oscillo_init() {
   );
   return ($init);
 }
+
+function oscillo_analyse($recording) {
+print_r($recording);
+return array();
+}

@@ -4,10 +4,11 @@
 function core_log($state="init", $module = NULL, $message = NULL) {
   if ($state == "init") {
     _core_log_init();
+  } else if ($state == "done") {
+    _core_log_close();
   } else {
     _core_log_write($state, $module, $message);
-  } else if ($sate == "done") {
-    _core_log_close();
+  }
 }
 
 function _core_log_init() {
@@ -249,6 +250,9 @@ function core_transcode() {
 function core_save($files) {
   foreach ($files as $id => $data) {
     exec("s3cmd put --force ".$data["local path"].$data["file name"]." s3://bioacoustica-analysis/".$data["save path"], $output, $return_value);
+    if ($return_value == 0) {
+      core_log("info", "bioacoustica", "Uploaded s3://bioacoustica-analysis/".$data["save path"].$data["file name"]." to analysis server.");
+    }
   }
 }
 

@@ -38,6 +38,7 @@ function bioacoustica_prepare() {
 function bioacoustica_transcode($data) {
   $return = array();
   if (!in_array($data["id"].".wav", $GLOBALS["bioacoustica"]["wave"])) {
+    core_log("info", "bioacoustica", "BioAcoustica file ".$data["id"]." needs to be uploaded to analysis server.");
     $extension = _bioacoustica_get_extension($data["file"]);
     if ($extension == "wav") {
       exec("wget --quiet ".$data["file"]." -O core/bioacoustica/transcode/".$data["id"].".wav", $output, $return_value);
@@ -50,9 +51,10 @@ function bioacoustica_transcode($data) {
           )
         );
       } else {
-        echo "NOTICE: Could not download file for recording ".$data["id"]."\n";
+        core_log("warning", "bioacoustica", "Could not download file for BioAcosutica recording ".$data["id"].".");
       }
     } else {
+      core_log("info", "bioacoustica", "BioAcoustica file ".$data["id"]." needs to be transcoded and uploaded to analysis server.");
       //Transcode
     }
   }
@@ -70,6 +72,7 @@ function _bioacoustica_get_extension($path) {
 }
 
 function _bioacoustica_prepare_analyses() {
+  core_log("info", "bioacoustica", "Attempting to list wave files on analysis server.");
   exec("s3cmd ls s3://bioacoustica-analysis/wav/", $output, $return_value);
   if ($return_value == 0) {
     if (count($output) == 0) {
@@ -84,6 +87,7 @@ function _bioacoustica_prepare_analyses() {
 }
 
 function _bioacoustica_prepare_recordings() {
+  core_log("info", "bioacosutica", "Attempting to download s3://bioacoustica-analysis/R/recordings.txt core/bioacoustica/prepare/recordings.txt");
   exec("s3cmd get --force s3://bioacoustica-analysis/R/recordings.txt core/bioacoustica/prepare/recordings.txt", $output, $return_value);
   if ($return_value == 0) {
     $keys = array(
@@ -98,12 +102,13 @@ function _bioacoustica_prepare_recordings() {
       "source"
     );
     $fh_recordings = fopen("core/bioacoustica/prepare/recordings.txt", 'r');
+    core_log("info", "bioacoustica", "Downlaoded recording metadata to core/bioacoustica/prepare/recordings.txt");
     fgetcsv($fh_recordings); //Discard headers row.
     while (($data = fgetcsv($fh_recordings)) !== FALSE) {
       $GLOBALS["core"]["recordings"][] = array_combine($keys, array_merge($data, array("bioacoustica")));
     }
+    core_log("info", "bioacoustica", "Loaded BioAcoustica recordings into recordings array.");
   } else {
-    echo "Could not download BioAcoustica recording metdata.\nExiting\n.";
-    exit;
+    core_log("fatal", "bioacoustica", "Could not download BioAcoustica recording metdata.");
   }
 }
