@@ -150,12 +150,12 @@ function _core_init_check_pythonmodule($module, $data) {
   if ($return_value == 0) {
   
   } else {
-    echo $data["missing text"]."\n";
     $GLOBALS["core"]["cmd"][$module] = FALSE;
+    $status = "warning";
     if ($data["required"] == "required") {
-      echo "Exiting.\n";
-      exit;
+      $status = "fatal";
     }
+    core_log($status, $module, $data["missing text"]);
   }
 }
 
@@ -176,12 +176,12 @@ function _core_init_check_Rpackage($package, $data) {
         $GLOBALS["core"]["cmd"][$package] = TRUE;
       }
     } else {
-      echo $data["missing text"]."\n";
       $GLOBALS["core"]["cmd"][$package] = FALSE;
+      $status = "warning";
       if ($data["required"] == "required") {
-        echo "Exiting.\n";
-        exit;
+        $status = "fatal";
       }
+      core_log($status, $package, $data["missing text"]);
     }
   return($return);
 } 
@@ -206,12 +206,12 @@ function _core_init_check_cmd($cmd_name, $data) {
         $GLOBALS["core"]["cmd"][$cmd_name] = TRUE;
       }
     } else {
-      echo $data["missing text"]."\n";
       $GLOBALS["core"]["cmd"][$cmd_name] = FALSE;
+      $status = "warning";
       if ($data["required"] == "required") {
-        echo "Exiting.\n";
-        exit;
+        $status = "fatal";
       }
+      core_log($status, $cmd_name, $data["missing text"]);
     }
     return($return);
 }
@@ -236,6 +236,7 @@ function core_init() {
 
 function core_prepare() {
   $GLOBALS["core"]["recordings"] = array();
+  core_log("info", "core", "Created recordings array.");
 }
 
 function core_transcode() {
