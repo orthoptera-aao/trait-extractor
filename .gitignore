@@ -9,3 +9,4 @@ core/*/transcode/*
 !core/*/prepare/readme
 !core/*/transcode/readme
 runs/*.csv
+scratch/wav/*.wav
