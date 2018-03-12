@@ -1,16 +1,48 @@
 <?php
 //globals: need to add $init_data_saved_to_dir = array();
 
+function core_log($state="init", $module = NULL, $message = NULL) {
+  if ($state == "init") {
+    _core_log_init();
+  } else {
+    _core_log_write($state, $module, $message);
+  } else if ($sate == "done") {
+    _core_log_close();
+}
+
+function _core_log_init() {
+  $GLOBALS["core"]["logfile"] = fopen("runs/".time().".csv", 'a');
+  core_log("info", "core", "Logfile started.");
+}
+
+function _core_log_write($state, $module, $message) {
+  $data = array(
+    date("r"),
+    $state,
+    $module,
+    $message
+  );
+  fputcsv($GLOBALS["core"]["logfile"], $data);
+  if ($state == "fatal") {
+    _core_log_close();
+  }
+}
+
+function _core_log_close() {
+  _core_log_write("info", "core", "Closing logfile.");
+  fclose($GLOBALS["core"]["logfile"]);
+}
+
 function core_load_modules() {
   $module_info_path = NULL;
   if (file_exists("config/modules.info")) {
     $module_info_path = "config/modules.info";
+    core_log("info", "core", "Using module info file: config/modules.info");
   } else if (file_exists("config/modules.info.default")) {
     $module_info_path = "config/modules.info.default";
-    echo "Using default values for config/modules.info\n";
+    core_log("info", "core", "Using default values for config/modules.info");
   } else {
-    echo "config/modules.info does not exist, and the default file has been removed.\n";
-    echo "Only core features will run.\n";
+    core_log("info", "core", "config/modules.info does not exist, and the default file has been removed.Only core features will run.");
   }
   include($module_info_path);
 
@@ -21,19 +53,18 @@ function core_load_modules() {
     }  else {
       $dir = "core";
     }
-      foreach ($modules as $module) {
-        if (!is_dir("$dir/$module")) {
-          echo "$dir/$module does not exist but is requested.\nExiting.\n";
-          exit;
-        }
-        if (file_exists("$dir/$module/$module.php")) {
-          include("$dir/$module/$module.php");
-        } else {
-          echo "$module module does not have a $module.php file.\nExiting.\n";
-          exit;
-        }
-        $GLOBALS["modules"][] = $module;
+    foreach ($modules as $module) {
+      if (!is_dir("$dir/$module")) {
+        core_log("fatal", $module, "$dir/$module does not exist but is requested.");
       }
+      if (file_exists("$dir/$module/$module.php")) {
+        include("$dir/$module/$module.php");
+      } else {
+        core_log("fatal", $module, "$module module does not have a $module.php file.");
+      }
+      $GLOBALS["modules"][] = $module;
+      core_log("info", "core", "Loaded module $module.");
+    }
   }
 
   $module_info = core_hook("info");
@@ -43,8 +74,7 @@ function core_load_modules() {
       if (isset($data["dependencies"])) {
         foreach ($data["dependencies"] as $dependency) {
           if (!in_array($dependency, $GLOBALS["modules"])) {
-            echo "'$module' requires the '$dependency' module but it is not included.\nExiting\n";
-            exit;
+            core_log("fatal", "core", "'$module' requires the '$dependency' module but it is not included.");
           }
         }
       }
@@ -61,8 +91,7 @@ function _core_get_github_folder($repo) {
 
 function core_pull_github($repos) {
   if ($GLOBALS["core"]["cmd"]["git"] != TRUE) {
-    echo "You have requested loading external modules from GitHub, but Git is not installed.\nExiting.\n";
-    exit;
+    core_log("fatal", "core", "You have requested loading external modules from GitHub, but Git is not installed.");
   }
   if (!is_array($repos)) {
     $repos = array($repos);
@@ -74,7 +103,7 @@ function core_pull_github($repos) {
     if (!is_dir("modules/$dir")) {
       exec("cd modules; git clone $repo; cd ..", $output, $return_value);
     }
-    exec("cd modules/$dir; git pull; git checkout master; cd ../..", $output, $return_value);
+    exec("cd modules/$dir; git pull; git checkout master  &> /dev/null; cd ../..", $output, $return_value);
   }
 }
 
@@ -109,8 +138,7 @@ function core_init_check($inits) {
         $return[] = _core_init_check_pythonmodule($cmd_name, $data);
         break;
       default:
-        echo "Undefined depency type: $cmd_name.\n";
-        exit;
+        core_log("fatal", "core", "Undefined depency type: $cmd_name.");
     }
   }
   return($return);

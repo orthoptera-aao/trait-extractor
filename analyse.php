@@ -12,6 +12,9 @@ include("core/core.php");
 
 $mode = "analayse"; //Set to "test" for test mode. Make this a command line switch.
 
+//Start run log
+core_log();
+
 //Core init needs to happen early on.
 $init = core_init();
 
@@ -132,3 +135,5 @@ foreach ($GLOBALS["core"]["recordings"] as $recording) {
 }
 
   core_hook("clean", $recording["id"]);
+  
+  core_log("done");
