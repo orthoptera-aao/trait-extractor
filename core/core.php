@@ -69,7 +69,6 @@ function core_load_modules() {
       core_log("info", "core", "Loaded module $module (version: $git_hash).");
     }
   }
-      print_r($GLOBALS);exit;
 
   $module_info = core_hook("info");
 
