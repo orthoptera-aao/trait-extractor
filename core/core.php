@@ -43,16 +43,18 @@ function core_load_modules() {
     $module_info_path = "config/modules.info.default";
     core_log("info", "core", "Using default values for config/modules.info");
   } else {
-    core_log("info", "core", "config/modules.info does not exist, and the default file has been removed.Only core features will run.");
+    core_log("info", "core", "config/modules.info does not exist, and the default file has been removed. Only core features will run.");
   }
   include($module_info_path);
 
   foreach($modules_info as $repo => $modules) {
     if ($repo != "core") {
-      core_pull_github($repo);
+      $git_hash = core_pull_github($repo);
       $dir = "modules/"._core_get_github_folder($repo);
     }  else {
       $dir = "core";
+      exec("git rev-parse HEAD", $output, $return_value);
+      $git_hash = $output[0];
     }
     foreach ($modules as $module) {
       if (!is_dir("$dir/$module")) {
@@ -63,10 +65,11 @@ function core_load_modules() {
       } else {
         core_log("fatal", $module, "$module module does not have a $module.php file.");
       }
-      $GLOBALS["modules"][] = $module;
-      core_log("info", "core", "Loaded module $module.");
+      $GLOBALS["modules"][$module] = array("git_hash" => $git_hash);
+      core_log("info", "core", "Loaded module $module (version: $git_hash).");
     }
   }
+      print_r($GLOBALS);exit;
 
   $module_info = core_hook("info");
 
@@ -104,7 +107,15 @@ function core_pull_github($repos) {
     if (!is_dir("modules/$dir")) {
       exec("cd modules; git clone $repo; cd ..", $output, $return_value);
     }
+    
+    unset($output);
+    unset($return_value);
     exec("cd modules/$dir; git pull; git checkout master  &> /dev/null; cd ../..", $output, $return_value);
+    
+    unset($output);
+    unset($return_value);
+    exec("cd modules/$dir; git rev-parse HEAD; cd ../..", $output, $return_value);
+    return($output[0]); //Return hash of git commit.
   }
 }
 
