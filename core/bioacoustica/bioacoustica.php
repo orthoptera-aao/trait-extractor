@@ -57,7 +57,6 @@ function bioacoustica_transcode($data) {
   global $system;
   $return = array();
   if (!in_array($data["id"].".wav", $system["analyses"]["wav"])) {
-  exit;print_r(count($system["analyses"]["wav"]));exit;
     core_log("info", "bioacoustica", "BioAcoustica file ".$data["id"]." needs to be uploaded to analysis server.");
     $extension = _bioacoustica_get_extension($data["file"]);
     if ($extension == "wav") {
