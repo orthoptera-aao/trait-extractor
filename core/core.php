@@ -134,8 +134,7 @@ function core_hook($hook, $data = NULL) {
 function core_download($file_with_path) {
   if (!file_exists("scratch/".$file_with_path)) {
     core_log("info", "core", "No scratch match for $file_with_path - attempting download.");
-    if (in_array($file_with_path, $GLOBALS["analyses"]["wav"])) {
-      exec("s3cmd get s3://bioacoustica-analysis/$file_with_path scratch/$file_with_path", $output, $return_value);
+    exec("s3cmd get s3://bioacoustica-analysis/$file_with_path scratch/$file_with_path", $output, $return_value);
     } else {
       core_log("warning", "core", "core_download: $file_with_path is unavailable.");
       return NULL;

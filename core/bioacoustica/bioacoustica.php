@@ -40,20 +40,20 @@ function _bioacoustica_prepare_analyses() {
   exec("s3cmd ls s3://bioacoustica-analysis/wav/", $output, $return_value);
   if ($return_value == 0) {
     if (count($output) == 0) {
-      $GLOBALS["anlayses"]["wav"] = array();
+      $GLOBALS["analyses"]["wav"] = array();
     } else {
       foreach ($output as $line) {
         $start = strrpos($line, "/");
-        $GLOBALS["anlayses"]["wav"][] = substr($line, $start + 1);
+        $GLOBALS["analyses"]["wav"][] = substr($line, $start + 1);
       }
     }
-  core_log("info", "bioacoustica", count($GLOBALS["anlayses"]["wav"])." wave files found.");
+  core_log("info", "bioacoustica", count($GLOBALS["analyses"]["wav"])." wave files found.");
   }
 }
 
 function bioacoustica_transcode($data) {
   $return = array();
-  if (!in_array($data["id"].".wav", $GLOBALS["anlayses"]["wav"])) {
+  if (!in_array($data["id"].".wav", $GLOBALS["analyses"]["wav"])) {
     core_log("info", "bioacoustica", "BioAcoustica file ".$data["id"]." needs to be uploaded to analysis server.");
     $extension = _bioacoustica_get_extension($data["file"]);
     if ($extension == "wav") {
