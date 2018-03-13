@@ -7,6 +7,7 @@ to functions from other modules so they can be integrated into the analysis run.
 
 */
 
+$system = array();
 
 include("core/core.php");
 
@@ -37,10 +38,10 @@ $init = array_merge($init, core_init_check($module_inits));
 The prepare phase downloads metadata files that are required for the functioning of
 each module.
 
-Modules may load this data into $GLOBALS[module_name][data]
+Modules may load this data into $system[module_name][data]
 
 Modules may also add to the following globals:
-$GLOBALS["core"]["recordings"] - an array of all recordings
+$system["core"]["recordings"] - an array of all recordings
 */
 core_prepare();
 core_hook("prepare");
@@ -58,7 +59,7 @@ if ($mode == "test") {
 $verification_notes = array();
 $comparison_notes = array();
 
-foreach ($GLOBALS["core"]["recordings"] as $recording) {
+foreach ($system["core"]["recordings"] as $recording) {
   /*
   Each recording is processed sequentially to avoid filling the drive with audio files.
 

@@ -12,32 +12,36 @@ function core_log($state="init", $module = NULL, $message = NULL) {
 }
 
 function _core_log_init() {
+  global $system;
   $timestamp = time();
-  $GLOBALS["core"]["logfile"] = fopen("runs/".$timestamp.".csv", 'a');
-  $GLOBALS["core"]["logfile name"] = $timestamp.".csv";
+  $system["core"]["logfile"] = fopen("runs/".$timestamp.".csv", 'a');
+  $system["core"]["logfile name"] = $timestamp.".csv";
   core_log("info", "core", "Logfile started.");
 }
 
 function _core_log_write($state, $module, $message) {
+  global $system;
   $data = array(
     date("r"),
     $state,
     $module,
     $message
   );
-  fputcsv($GLOBALS["core"]["logfile"], $data);
+  fputcsv($system["core"]["logfile"], $data);
   if ($state == "fatal") {
     _core_log_close();
   }
 }
 
 function _core_log_close() {
+  global $system;
   _core_log_write("info", "core", "Closing logfile.");
-  fclose($GLOBALS["core"]["logfile"]);
-  exec("s3cmd put /runs/".$GLOBALS["core"]["logfile name"]." s3://bioacoustica-analysis/runs/", $output, $return_value);
+  fclose($system["core"]["logfile"]);
+  exec("s3cmd put /runs/".$system["core"]["logfile name"]." s3://bioacoustica-analysis/runs/", $output, $return_value);
 }
 
 function core_load_modules() {
+  global $system;
   $module_info_path = NULL;
   if (file_exists("config/modules.info")) {
     $module_info_path = "config/modules.info";
@@ -68,7 +72,7 @@ function core_load_modules() {
       } else {
         core_log("fatal", $module, "$module module does not have a $module.php file.");
       }
-      $GLOBALS["modules"][$module] = array("git_hash" => $git_hash);
+      $system["modules"][$module] = array("git_hash" => $git_hash);
       core_log("info", "core", "Loaded module $module (version: $git_hash).");
     }
   }
@@ -79,7 +83,7 @@ function core_load_modules() {
     foreach ($value as $module => $data) {
       if (isset($data["dependencies"])) {
         foreach ($data["dependencies"] as $dependency) {
-          if (!in_array($dependency, $GLOBALS["modules"])) {
+          if (!in_array($dependency, $system["modules"])) {
             core_log("fatal", "core", "'$module' requires the '$dependency' module but it is not included.");
           }
         }
@@ -96,7 +100,8 @@ function _core_get_github_folder($repo) {
 }
 
 function core_pull_github($repos) {
-  if ($GLOBALS["core"]["cmd"]["git"] != TRUE) {
+  global $system;
+  if ($system["core"]["cmd"]["git"] != TRUE) {
     core_log("fatal", "core", "You have requested loading external modules from GitHub, but Git is not installed.");
   }
   if (!is_array($repos)) {
@@ -122,8 +127,9 @@ function core_pull_github($repos) {
 }
 
 function core_hook($hook, $data = NULL) {
+  global $system;
   $returns = array();
-  foreach ($GLOBALS["modules"] as $module => $module_data) {
+  foreach ($system["modules"] as $module => $module_data) {
     if (function_exists($module."_".$hook)) {
       $returns = array_merge($returns, call_user_func($module."_".$hook, $data));
     }
@@ -168,7 +174,7 @@ function _core_init_check_pythonmodule($module, $data) {
   if ($return_value == 0) {
   
   } else {
-    $GLOBALS["core"]["cmd"][$module] = FALSE;
+    $system["core"]["cmd"][$module] = FALSE;
     $status = "warning";
     if ($data["required"] == "required") {
       $status = "fatal";
@@ -191,10 +197,10 @@ function _core_init_check_Rpackage($package, $data) {
           "cmd_name" => $package,
           "version" => $version
         );
-        $GLOBALS["core"]["cmd"][$package] = TRUE;
+        $system["core"]["cmd"][$package] = TRUE;
       }
     } else {
-      $GLOBALS["core"]["cmd"][$package] = FALSE;
+      $system["core"]["cmd"][$package] = FALSE;
       $status = "warning";
       if ($data["required"] == "required") {
         $status = "fatal";
@@ -205,6 +211,7 @@ function _core_init_check_Rpackage($package, $data) {
 } 
 
 function _core_init_check_cmd($cmd_name, $data) {
+  global $system;
   $return = array();
     exec("which ".$cmd_name, $path, $return_value);
     if ($return_value == 0) {
@@ -221,10 +228,10 @@ function _core_init_check_cmd($cmd_name, $data) {
           "path" => $path[0],
           "version" => $version
         );
-        $GLOBALS["core"]["cmd"][$cmd_name] = TRUE;
+        $system["core"]["cmd"][$cmd_name] = TRUE;
       }
     } else {
-      $GLOBALS["core"]["cmd"][$cmd_name] = FALSE;
+      $system["core"]["cmd"][$cmd_name] = FALSE;
       $status = "warning";
       if ($data["required"] == "required") {
         $status = "fatal";
@@ -253,7 +260,8 @@ function core_init() {
 }
 
 function core_prepare() {
-  $GLOBALS["core"]["recordings"] = array();
+  global $system;
+  $system["core"]["recordings"] = array();
   core_log("info", "core", "Created recordings array.");
 }
 
