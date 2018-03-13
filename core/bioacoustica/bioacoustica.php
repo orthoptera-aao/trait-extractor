@@ -35,6 +35,22 @@ function bioacoustica_prepare() {
   return(array());
 }
 
+function _bioacoustica_prepare_analyses() {
+  core_log("info", "core", "Attempting to list wave files on analysis server.");
+  exec("s3cmd ls s3://bioacoustica-analysis/wav/", $output, $return_value);
+  if ($return_value == 0) {
+    if (count($output) == 0) {
+      $GLOBALS["anlayses"]["wav"] = array();
+    } else {
+      foreach ($output as $line) {
+        $start = strrpos($line, "/");
+        $GLOBALS["anlayses"]["wav"][] = substr($line, $start + 1);
+      }
+    }
+  core_log("info", "bioacoustica", count($GLOBALS["anlayses"]["wav"])." wave files found.");
+  }
+}
+
 function bioacoustica_transcode($data) {
   $return = array();
   if (!in_array($data["id"].".wav", $GLOBALS["bioacoustica"]["wave"])) {
@@ -69,22 +85,6 @@ function bioacoustica_clean() {
 function _bioacoustica_get_extension($path) {
   $pos = strrpos($path, ".");
   return(strtolower(substr($path, $pos + 1)));
-}
-
-function _bioacoustica_prepare_analyses() {
-  core_log("info", "bioacoustica", "Attempting to list wave files on analysis server.");
-  exec("s3cmd ls s3://bioacoustica-analysis/wav/", $output, $return_value);
-  if ($return_value == 0) {
-    if (count($output) == 0) {
-      $GLOBALS["bioacoustica"]["wave"] = array();
-    } else {
-      foreach ($output as $line) {
-        $start = strrpos($line, "/");
-        $GLOBALS["bioacoustica"]["wave"][] = substr($line, $start + 1);
-      }
-    }
-  core_log("info", "bioacoustica", count($GLOBALS["bioacoustica"]["wave"])." wave files found.");
-  }
 }
 
 function _bioacoustica_prepare_recordings() {
