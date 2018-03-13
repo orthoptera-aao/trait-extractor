@@ -12,7 +12,9 @@ function core_log($state="init", $module = NULL, $message = NULL) {
 }
 
 function _core_log_init() {
-  $GLOBALS["core"]["logfile"] = fopen("runs/".time().".csv", 'a');
+  $timestamp = time();
+  $GLOBALS["core"]["logfile"] = fopen("runs/".$timestamp.".csv", 'a');
+  $GLOBALS["core"]["logfile name"] = $timestamp.".csv";
   core_log("info", "core", "Logfile started.");
 }
 
@@ -32,6 +34,7 @@ function _core_log_write($state, $module, $message) {
 function _core_log_close() {
   _core_log_write("info", "core", "Closing logfile.");
   fclose($GLOBALS["core"]["logfile"]);
+  exec("s3cmd put /runs/".$GLOBALS["core"]["logfile name"]." s3://bioacoustica-analysis/runs/", $output, $return_value);
 }
 
 function core_load_modules() {

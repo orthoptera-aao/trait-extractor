@@ -10,3 +10,5 @@ core/*/transcode/*
 !core/*/transcode/readme
 runs/*.csv
 scratch/wav/*.wav
+
+wget-log
