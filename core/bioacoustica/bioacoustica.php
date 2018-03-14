@@ -24,6 +24,12 @@ function bioacoustica_init() {
       "type" => "pythonmodule",
       "required" => "optional",
       "missing text" => "s3cmd is quieter when the python-magic module is installed."
+    ),
+    "ffmpeg" => array(
+      "type" => "cmd",
+      "required" => "required",
+      "missing text" => "BioAcoustica requires ffmpeg for transcoding files.",
+      "version flag" => "-version"
     )
   );
   return($init);
@@ -69,11 +75,28 @@ function bioacoustica_transcode($data) {
         );
       } else {
         core_log("warning", "bioacoustica", "Could not download file for BioAcosutica recording ".$data["id"].".");
-      }
+      } 
     } else {
-      core_log("info", "bioacoustica", "BioAcoustica file ".$data["id"]." needs to be transcoded and uploaded to analysis server.");
-      //Transcode
-    }
+        core_log("info", "bioacoustica", "BioAcoustica file ".$data["id"]." needs to be transcoded and uploaded to analysis server.");
+        exec("wget --quiet ".$data["file"]." -O scratch/wav/".$data["id"].".".$extension, $output, $return_value);
+        if ($return_value == 0) {
+          unset($output);
+          unset($return_value);
+          exec("ffmpeg -hide_banner -loglevel panic -y -i scratch/wav/".$data["id"].".".$extension." scratch/wav/".$data["id"].".wav", $output, $return_value);
+          $return = array(
+            $data["id"] => array(
+              "file name" => $data["id"].".".$extension,
+              "local path" => "scratch/wav/",
+              "save path" => NULL
+            ),
+            $data["id"]."-wav" => array(
+              "file name" => $data["id"].".wav",
+              "local path" => "scratch/wav/",
+              "save path" => "wav/"
+            )
+          );
+        }
+      }
   }
   if (!in_array($data["id"]."1kHz-highpass.wav", $system["analyses"]["wav"])) {
     core_log("info", "bioacoustica", "BioAcoustica file ".$data["id"]." needs 1kHz high pass version.");

@@ -138,14 +138,17 @@ function core_hook($hook, $data = NULL) {
 }
 
 function core_download($file_with_path) {
-  if (!file_exists("scratch/".$file_with_path)) {
-    core_log("info", "core", "No scratch match for $file_with_path - attempting download.");
-    exec("s3cmd get s3://bioacoustica-analysis/$file_with_path scratch/$file_with_path", $output, $return_value);
+  if (file_exists("scratch/".$file_with_path)) {
+    return $file_with_path;
   } else {
-    core_log("warning", "core", "core_download: $file_with_path is unavailable.");
+    core_log("info", "core", "No scratch match for scratch/$file_with_path - attempting download.");
+    exec("s3cmd get s3://bioacoustica-analysis/$file_with_path scratch/$file_with_path", $output, $return_value);
+    if ($return_value == 0) {
+      return $file_with_path;
+    }
+    core_log("warning", "core", "core_download: scratch/$file_with_path is unavailable.");
     return NULL;
   }
-  return($file_with_path);
 }
 
 function core_init_check($inits) {
