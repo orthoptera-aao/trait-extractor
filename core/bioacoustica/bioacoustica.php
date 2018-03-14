@@ -62,12 +62,10 @@ function bioacoustica_transcode($data) {
     if ($extension == "wav") {
       exec("wget --quiet ".$data["file"]." -O scratch/wav/".$data["id"].".wav", $output, $return_value);
       if ($return_value == 0) {
-        $return = array(
-          $data["id"] => array(
+        $return[$data["id"]] = array(
             "file name" => $data["id"].".wav",
             "local path" => "scratch/wav/",
             "save path" => "wav/"
-          )
         );
       } else {
         core_log("warning", "bioacoustica", "Could not download file for BioAcosutica recording ".$data["id"].".");
@@ -75,6 +73,26 @@ function bioacoustica_transcode($data) {
     } else {
       core_log("info", "bioacoustica", "BioAcoustica file ".$data["id"]." needs to be transcoded and uploaded to analysis server.");
       //Transcode
+    }
+  }
+  if (!in_array($data["id"]."1kHz-highpass.wav", $system["analyses"]["wav"])) {
+    core_log("info", "bioacoustica", "BioAcoustica file ".$data["id"]." needs 1kHz high pass version.");
+    $file = core_download("wav/".$data["id"].".wav");
+    if ($file == NULL) {
+      core_log("warning", "bioacoustica", "File was not available, skipping 1kHz high pass conversion.");
+      return($return);
+    }
+    unset($output);
+    unset($return_value);
+    exec("Rscript core/bioacoustica/1kHz-highpass.R ".$data["id"]." \"".$data["taxon"]."\" scratch/wav/".$data["id"].".wav", $output, $return_value);
+    if ($return_value == 0){
+      $return[$data["id"]] = array(
+        "file name" => $data["id"].".1kHz-highpass.wav",
+        "local path" => "scratch/wav/",
+        "save path" => "wav/"
+      );
+    } else {
+      core_log("warning", "bioacoustica", "Could not create 1kHz high pass file.");
     }
   }
   return($return); //Needs to be files 
