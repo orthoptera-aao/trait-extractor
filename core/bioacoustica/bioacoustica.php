@@ -30,6 +30,13 @@ function bioacoustica_init() {
       "required" => "required",
       "missing text" => "BioAcoustica requires ffmpeg for transcoding files.",
       "version flag" => "-version"
+    ),
+    "seewave" => array( 
+      "type" => "Rpackage",
+      "required" => "required",
+      "missing text" => "Oscillo requires the R seewave package.",
+      "version flag" => "--quiet -e 'packageVersion(\"seewave\")'",
+      "version line" => 1
     )
   );
   return($init);
