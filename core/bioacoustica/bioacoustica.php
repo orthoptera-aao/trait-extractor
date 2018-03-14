@@ -98,18 +98,24 @@ function bioacoustica_transcode($data) {
         }
       }
   }
-  if (!in_array($data["id"]."1kHz-highpass.wav", $system["analyses"]["wav"])) {
+  if (!in_array($data["id"].".1kHz-highpass.wav", $system["analyses"]["wav"])) {
     core_log("info", "bioacoustica", "BioAcoustica file ".$data["id"]." needs 1kHz high pass version.");
     $file = core_download("wav/".$data["id"].".wav");
     if ($file == NULL) {
       core_log("warning", "bioacoustica", "File was not available, skipping 1kHz high pass conversion.");
       return($return);
+    } else {
+      $return[] = array(
+          "file name" => $data["id"].".wav",
+          "local path" => "scratch/wav/",
+          "save path" => NULL
+        );
     }
     unset($output);
     unset($return_value);
     exec("Rscript core/bioacoustica/1kHz-highpass.R ".$data["id"]." \"".$data["taxon"]."\" scratch/wav/".$data["id"].".wav", $output, $return_value);
     if ($return_value == 0){
-      $return[$data["id"]] = array(
+      $return[] = array(
         "file name" => $data["id"].".1kHz-highpass.wav",
         "local path" => "scratch/wav/",
         "save path" => "wav/"
