@@ -9,6 +9,7 @@ core/*/transcode/*
 !core/*/prepare/readme
 !core/*/transcode/readme
 runs/*.csv
-scratch/wav/*.wav
+scratch/wav/*
+!scratch/readme
 
 wget-log
