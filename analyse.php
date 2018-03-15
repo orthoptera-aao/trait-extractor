@@ -12,13 +12,13 @@ $system = array();
 include("core/core.php");
 
 $mode = "analayse"; //Set to "test" for test mode. Make this a command line switch.
+$max_file_size_to_process = 100000000; //Set to NULL for no limit.
 
 //Start run log
 core_log();
 
 //Core init needs to happen early on.
 $init = core_init();
-
 
 /*
 Load config/modules.info which is a list of GitHuib repositories to load modules from.
@@ -60,6 +60,7 @@ $verification_notes = array();
 $comparison_notes = array();
 
 foreach ($system["core"]["recordings"] as $recording) {
+
   /*
   Each recording is processed sequentially to avoid filling the drive with audio files.
 
@@ -94,6 +95,16 @@ foreach ($system["core"]["recordings"] as $recording) {
 
   It may also be used for other transformations before analysis.
   */
+  
+  if (!is_null($max_file_size_to_process) && $max_file_size_to_process < $recording["byte size"]) {
+    core_log("info", "core", "Skipping file as greater than max_file_size_to_process");
+    continue;
+  }
+  if (!is_null($max_file_size_to_process) && $recording["byte size"] == "") {
+    core_log("warning", "core", "Max file size checking is enabled but no data provided for recording ".$recording["id"]);
+    continue;
+  }
+  
   $transcodes = core_hook("transcode", $recording);
   core_save($transcodes);
 

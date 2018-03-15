@@ -73,7 +73,7 @@ function bioacoustica_transcode($data) {
     core_log("info", "bioacoustica", "BioAcoustica file ".$data["id"]." needs to be uploaded to analysis server.");
     $extension = _bioacoustica_get_extension($data["file"]);
     if ($extension == "wav") {
-      exec("wget --quiet ".$data["file"]." -O scratch/wav/".$data["id"].".wav", $output, $return_value);
+      exec("wget --quiet '".$data["file"]."' -O scratch/wav/".$data["id"].".wav", $output, $return_value);
       if ($return_value == 0) {
         $return[$data["id"]] = array(
             "file name" => $data["id"].".wav",
@@ -85,7 +85,7 @@ function bioacoustica_transcode($data) {
       } 
     } else {
         core_log("info", "bioacoustica", "BioAcoustica file ".$data["id"]." needs to be transcoded and uploaded to analysis server.");
-        exec("wget --quiet ".$data["file"]." -O scratch/wav/".$data["id"].".".$extension, $output, $return_value);
+        exec("wget --quiet '".$data["file"]."' -O scratch/wav/".$data["id"].".".$extension, $output, $return_value);
         if ($return_value == 0) {
           unset($output);
           unset($return_value);
