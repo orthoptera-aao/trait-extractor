@@ -13,3 +13,5 @@ scratch/wav/*
 !scratch/readme
 
 wget-log
+
+config/modules.info
