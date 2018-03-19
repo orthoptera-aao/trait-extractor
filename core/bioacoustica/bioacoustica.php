@@ -120,7 +120,7 @@ function bioacoustica_transcode($data) {
     }
     unset($output);
     unset($return_value);
-    exec("Rscript core/bioacoustica/1kHz-highpass.R ".$data["id"]." \"".$data["taxon"]."\" scratch/wav/".$data["id"].".wav", $output, $return_value);
+    exec("Rscript core/bioacoustica/1kHz-highpass.R ".$data["id"]." scratch/wav/".$data["id"].".wav", $output, $return_value);
     if ($return_value == 0){
       $return[] = array(
         "file name" => $data["id"].".1kHz-highpass.wav",
