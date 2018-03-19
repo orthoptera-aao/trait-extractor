@@ -69,6 +69,31 @@ function flac_transcode($data) {
       core_log("warning", "flac", "flac file was not created: ".serialize($output));
     }
   }
+  
+  if (!in_array($data["id"].".44k.30min.flac", $system["analyses"]["flac"])) {
+    core_log("info", "flac", "File ".$data["id"]." needs truncated 44k flac version.");
+    $file = core_download("wav/".$data["id"].".wav");
+    if ($file == NULL) {
+      core_log("warning", "flac", "File was not available, skipping conversion.");
+      return($return);
+    } else {
+      $return["wave"] = array(
+        "file name" => $data["id"].".wav",
+        "local path" => "scratch/wav/",
+        "save path" => NULL
+        );
+    }
+    exec("ffmpeg -hide_banner -loglevel panic -y -t 00:30:00 -i scratch/wav/".$data["id"].".wav -ac 1 -ar 44000 scratch/flac/".$data["id"].".44k.30min.flac", $output, $return_value);
+    if ($return_value == 0) {
+      $return ["flac.44k.30min"]= array(
+        "file name" =>$data["id"].".44k.30min.flac",
+        "local path" => "scratch/flac/",
+        "save path" => "flac/"
+      );
+    } else {
+      core_log("warning", "flac", "truncated 44k flac file was not created: ".serialize($output));
+    }
+  }
 
   return($return); //Needs to be files 
 }
