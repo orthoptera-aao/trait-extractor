@@ -58,7 +58,7 @@ function flac_transcode($data) {
         "save path" => NULL
         );
     }
-    exec("ffmpeg -i scratch/wav/".$data["id"].".wav scratch/flac/.".$data["id"].".flac -y", $output, $return_value);
+    exec("ffmpeg -i scratch/wav/".$data["id"].".wav scratch/flac/".$data["id"].".flac -y", $output, $return_value);
     if ($return_value == 0) {
       $return ["flac"]= array(
         "file name" =>$data["id"].".flac",
