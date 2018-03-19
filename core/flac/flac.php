@@ -45,7 +45,7 @@ function flac_prepare() {
 function flac_transcode($data) {
   global $system;
   $return = array();
-  if (!in_array($data["id"].".wav", $system["analyses"]["flac"])) {
+  if (!in_array($data["id"].".flac", $system["analyses"]["flac"])) {
     core_log("info", "flac", "File ".$data["id"]." needs flac version.");
     $file = core_download("wav/".$data["id"].".wav");
     if ($file == NULL) {
@@ -65,6 +65,8 @@ function flac_transcode($data) {
         "local path" => "scratch/flac/",
         "save path" => "flac/"
       );
+    } else {
+      core_log("warning", "flac", "flac file was not created: ".serialize($output));
     }
   }
 
