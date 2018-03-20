@@ -16,3 +16,5 @@ scratch/flac*
 wget-log
 
 config/modules.info
+
+*.pdf
