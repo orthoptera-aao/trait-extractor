@@ -158,6 +158,7 @@ function _bioacoustica_prepare_recordings() {
       "size",
       "byte size",
       "MIME",
+      "non-specimen",
       "source"
     );
     $fh_recordings = fopen("core/bioacoustica/prepare/recordings.txt", 'r');
