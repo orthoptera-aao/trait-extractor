@@ -51,7 +51,7 @@ function bioacoustica_prepare() {
 function _bioacoustica_prepare_analyses() {
   global $system;
   $system["analyses"]["wav"] = array();
-  core_log("info", "core", "Attempting to list wave files on analysis server.");
+  core_log("info", "bioacoustica", "Attempting to list wave files on analysis server.");
   exec("s3cmd ls s3://bioacoustica-analysis/wav/", $output, $return_value);
   if ($return_value == 0) {
     if (count($output) == 0) {
