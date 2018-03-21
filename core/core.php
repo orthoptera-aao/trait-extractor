@@ -37,7 +37,7 @@ function _core_log_close() {
   global $system;
   _core_log_write("info", "core", "Closing logfile.");
   fclose($system["core"]["logfile"]);
-  exec("s3cmd put /runs/".$system["core"]["logfile name"]." s3://bioacoustica-analysis/runs/", $output, $return_value);
+  exec("s3cmd put runs/".$system["core"]["logfile name"]." s3://bioacoustica-analysis/runs/", $output, $return_value);
 }
 
 function core_load_modules() {
