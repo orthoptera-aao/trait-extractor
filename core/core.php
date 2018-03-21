@@ -117,7 +117,7 @@ function core_pull_github($repos) {
     
     unset($output);
     unset($return_value);
-    exec("cd modules/$dir; git pull; git checkout master  &> /dev/null; cd ../..", $output, $return_value);
+    exec("cd modules/$dir; git pull --recurse-submodules; git checkout master  &> /dev/null; cd ../..", $output, $return_value);
     
     unset($output);
     unset($return_value);
