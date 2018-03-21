@@ -112,7 +112,7 @@ function core_pull_github($repos) {
     unset($return_value);
     $dir = _core_get_github_folder($repo);
     if (!is_dir("modules/$dir")) {
-      exec("cd modules; git clone $repo; cd ..", $output, $return_value);
+      exec("cd modules; git clone --recurse-submodules $repo; cd ..", $output, $return_value);
     }
     
     unset($output);
