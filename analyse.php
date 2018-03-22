@@ -146,6 +146,10 @@ foreach ($system["core"]["recordings"] as $recording) {
   core_clean($analyses);
 }
 
+$conc = core_hook("consolidate");
+core_save($conc);
+core_clean($conc);
+
   core_hook("clean", $recording["id"]);
   
   core_log("done");
