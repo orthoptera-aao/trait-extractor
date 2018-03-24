@@ -45,6 +45,7 @@ function bioacoustica_init() {
 function bioacoustica_prepare() {
   _bioacoustica_prepare_recordings();
   _bioacoustica_prepare_analyses();
+  _bioacoustica_prepare_taxa();
   return(array());
 }
 
@@ -65,6 +66,8 @@ function _bioacoustica_prepare_analyses() {
   }
   core_log("info", "bioacoustica", count($system["analyses"]["wav"])." wave files found.");
 }
+
+
 
 function bioacoustica_transcode($data) {
   global $system;
@@ -170,5 +173,46 @@ function _bioacoustica_prepare_recordings() {
     core_log("info", "bioacoustica", "Loaded BioAcoustica recordings into recordings array.");
   } else {
     core_log("fatal", "bioacoustica", "Could not download BioAcoustica recording metdata.");
+  }
+}
+
+function _bioacoustica_prepare_taxa() {
+  global $system;
+  core_log("info", "bioacosutica", "Attempting to download s3://bioacoustica-analysis/R/taxa.txt core/bioacoustica/prepare/taxa.txt");
+  exec("s3cmd get --force s3://bioacoustica-analysis/R/taxa.txt core/bioacoustica/prepare/taxa.txt", $output, $return_value);
+  if ($return_value == 0) {
+    $keys = array(
+      "id",
+      "taxon",
+      "unit name 1",
+      "unit name 2",
+      "unit name 3",
+      "unit name 4",
+      "rank",
+      "parent_id",
+      "parent_taxon",
+    );
+    $fh_recordings = fopen("core/bioacoustica/prepare/taxa.txt", 'r');
+    core_log("info", "bioacoustica", "Downlaoded taxon metadata to core/bioacoustica/prepare/taxa.txt");
+    fgetcsv($fh_recordings); //Discard headers row.
+    while (($data = fgetcsv($fh_recordings)) !== FALSE) {
+      $system["core"]["taxa"][] = array_combine($keys, $data);
+    }
+    core_log("info", "bioacoustica", "Loaded taxa.");
+  } else {
+    core_log("fatal", "bioacoustica", "Could not download taxa.");
+  }
+}
+
+function _get_parent_by_id($id, $rank) {
+  global $system;
+  foreach ($system["core"]["taxa"] as $taxon) {
+    if ($taxon["id"] == $id) {
+      if ($taxon["rank"] == $rank) {
+        return($taxon["taxon"]);
+      } else {
+       return(_get_parent_by_id($taxon["parent_id"], $rank));
+      }
+    }
   }
 }
