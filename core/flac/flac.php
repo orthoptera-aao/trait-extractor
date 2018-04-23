@@ -95,5 +95,30 @@ function flac_transcode($data) {
     }
   }
 
+  if (!in_array($data["id"].".1kHz-highpass.flac", $system["analyses"]["flac"])) {
+    core_log("info", "flac", "File ".$data["id"]." needs 1kHz highpass flac version.");
+    $file = core_download("wav/".$data["id"].".1kHz-highpass".wav");
+    if ($file == NULL) {
+      core_log("warning", "flac", "File was not available, skipping conversion.");
+      return($return);
+    } else {
+      $return["wave"] = array(
+        "file name" => $data["id"].".wav",
+        "local path" => "scratch/wav/",
+        "save path" => NULL
+        );
+    }
+    exec("ffmpeg -hide_banner -loglevel panic -y -t 00:30:00 -i scratch/wav/".$data["id"].".1kHz-highpass.wav -scratch/flac/".$data["id"].".1kHz-highpass.flac", $output, $return_value);
+    if ($return_value == 0) {
+      $return ["flac.1kHz-highpass"]= array(
+        "file name" =>$data["id"].".1kHz-highpass.flac",
+        "local path" => "scratch/flac/",
+        "save path" => "flac/"
+      );
+    } else {
+      core_log("warning", "flac", "truncated 44k flac file was not created: ".serialize($output));
+    }
+  }
+
   return($return); //Needs to be files 
 }
