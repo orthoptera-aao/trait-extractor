@@ -97,7 +97,7 @@ function flac_transcode($data) {
 
   if (!in_array($data["id"].".1kHz-highpass.flac", $system["analyses"]["flac"])) {
     core_log("info", "flac", "File ".$data["id"]." needs 1kHz highpass flac version.");
-    $file = core_download("wav/".$data["id"].".1kHz-highpass".wav");
+    $file = core_download("wav/".$data["id"].".1kHz-highpass.wav");
     if ($file == NULL) {
       core_log("warning", "flac", "File was not available, skipping conversion.");
       return($return);
