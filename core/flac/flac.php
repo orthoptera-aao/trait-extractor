@@ -108,7 +108,7 @@ function flac_transcode($data) {
         "save path" => NULL
         );
     }
-    exec("ffmpeg -hide_banner -loglevel panic -y -i scratch/wav/".$data["id"].".1kHz-highpass.wav -scratch/flac/".$data["id"].".1kHz-highpass.flac", $output, $return_value);
+    exec("ffmpeg -hide_banner -loglevel panic -y -i scratch/wav/".$data["id"].".1kHz-highpass.wav scratch/flac/".$data["id"].".1kHz-highpass.flac", $output, $return_value);
     if ($return_value == 0) {
       $return ["flac.1kHz-highpass"]= array(
         "file name" =>$data["id"].".1kHz-highpass.flac",
